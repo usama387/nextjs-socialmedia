@@ -13,11 +13,113 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// first model is about User role in the app User has one to many relation with Post as well as with Like model
+model User {
+  id                     String          @id @default(auto()) @map("_id") @db.ObjectId
+  username               String          @unique
+  avatar                 String?
+  cover                  String?
+  name                   String?
+  surname                String?
+  description            String?
+  city                   String?
+  school                 String?
+  work                   String?
+  website                String?
+  createdAt              DateTime        @default(now())
+  posts                  Post[]
+  comments               Comment[]
+  likes                  Like[]
+  followers              Follower[]      @relation("UserFollowers")
+  followings             Follower[]      @relation("UserFollowings")
+  followRequestsSent     FollowRequest[] @relation("FollowRequestsSent")
+  followRequestsReceived FollowRequest[] @relation("FollowRequestsReceived")
+  blocks                 Block[]         @relation("BlocksSent")
+  blockedBy              Block[]         @relation("BlocksReceived")
+  stories                Story[]
+}
 
+// second model is POST and it has a relation of many to one with User model
+// when a User is deleted all his posts will be removed
 model Post {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   desc      String
   img       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @db.ObjectId
+  comments  Comment[]
+  likes     Like[]
+}
+
+// third model is the comment model first it has many to one relation with User model and then one to one relation with a POST and then with Like model
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  desc      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  likes     Like[]
+}
+
+// fourth model it also has relation of many to one with User and Post model means each User and Post can have mutliple likes 
+model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String?  @db.ObjectId
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String?  @db.ObjectId
+}
+
+// fifth model is follwer and has double relation with User model whci has followers and also has follow other Users 
+model Follower {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String   @db.ObjectId
+  following   User     @relation("UserFollowings", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String   @db.ObjectId
+}
+
+// sixth model is for follow requests similarly it as also has double relation with User model the user can both accept and send request
+model FollowRequest {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime @default(now())
+  sender     User     @relation("FollowRequestsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   String   @db.ObjectId
+  receiver   User     @relation("FollowRequestsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String   @db.ObjectId
+
+  // Usama cannot follow himself the username should be unique
+  @@unique([senderId, receiverId])
+}
+
+// seventh model is for Block and it similary to above two models it also has double relation with User
+model Block {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  blocker   User     @relation("BlocksSent", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockerId String   @db.ObjectId
+  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+  blockedId String   @db.ObjectId
+
+  // Usama cannot block himself the username should be unique
+  @@unique([blockerId, blockedId])
+}
+
+// 8th model is about stroy and has one to one relation with User model means each user can create only one story
+model Story {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  img       String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique @db.ObjectId
 }
