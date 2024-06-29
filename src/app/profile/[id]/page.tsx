@@ -7,7 +7,7 @@ const SingleProfilePage = () => {
     <div className="flex gap-6 pt-6">
       {/* LEFT CONTAINER */}
       <div className="hidden xl:block w-[20%]">
-        <LeftMenu />
+        <LeftMenu type="profile" />
       </div>
       {/* MIDDLE CONTAINER */}
       <div className="w-full lg:w-[70%] xl:w-[50%]">
@@ -17,7 +17,7 @@ const SingleProfilePage = () => {
       </div>
       {/* RIGHT CONTAINER */}
       <div className="hidden lg:block w-[30%]">
-        <RightMenu userId="test"/>
+        <RightMenu userId="test" />
       </div>
     </div>
   );

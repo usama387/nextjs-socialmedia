@@ -10,7 +10,7 @@ const HomePage = () => {
     <div className="flex gap-6 pt-6">
       {/* LEFT CONTAINER */}
       <div className="hidden xl:block w-[20%]">
-        <LeftMenu />
+        <LeftMenu type="home"/>
       </div>
       {/* MIDDLE CONTAINER */}
       <div className="w-full lg:w-[70%] xl:w-[50%]">
