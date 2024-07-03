@@ -6,8 +6,27 @@ import Image from "next/image";
 const AddPost = () => {
   // destructuring current user from clerk
   const { userId } = auth();
-  
 
+  // server action for test purpose
+  const testAction = async (formData: FormData) => {
+    "use server";
+
+    if (!userId) return;
+
+    // accessing my input box with its name
+    const desc = formData.get("desc") as string;
+    try {
+      const res = await prisma.post.create({
+        data: {
+          userId: userId,
+          desc: desc,
+        },
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="p-4 shadow-md bg-white rounded-lg flex gap-4 justify-between text-sm">
@@ -22,7 +41,7 @@ const AddPost = () => {
       {/* Post */}
       <div className="flex-1">
         {/* text input  */}
-        <form action="" className="flex gap-4">
+        <form action={testAction} className="flex gap-4">
           <textarea
             name="desc"
             placeholder="what's on your mind?"
