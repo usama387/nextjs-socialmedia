@@ -53,10 +53,9 @@ export async function POST(req: Request) {
   // For this guide, you simply log the payload to the console
   const { id } = evt.data;
   const eventType = evt.type;
-  //   console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
-  //   console.log('Webhook body:', body)
+  // console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
+  // console.log('Webhook body:', body)
 
-  // this api gets invoked and creates user in the db when the event is create user
   if (eventType === "user.created") {
     try {
       await prisma.user.create({
@@ -67,13 +66,12 @@ export async function POST(req: Request) {
           cover: "/noCover.png",
         },
       });
-      return new Response("User has been created", { status: 200 });
-    } catch (error) {
-      console.log(error);
-      return new Response("Failed to create the user", { status: 500 });
+      return new Response("User has been created!", { status: 200 });
+    } catch (err) {
+      console.log(err);
+      return new Response("Failed to create the user!", { status: 500 });
     }
   }
-
   if (eventType === "user.updated") {
     try {
       await prisma.user.update({
@@ -85,11 +83,12 @@ export async function POST(req: Request) {
           avatar: JSON.parse(body).data.image_url || "/noAvatar.png",
         },
       });
-      return new Response("User has been updated", { status: 200 });
-    } catch (error) {
-      console.log(error);
-      return new Response("Failed to update the user", { status: 500 });
+      return new Response("User has been updated!", { status: 200 });
+    } catch (err) {
+      console.log(err);
+      return new Response("Failed to update the user!", { status: 500 });
     }
   }
+
   return new Response("Webhook received", { status: 200 });
 }
