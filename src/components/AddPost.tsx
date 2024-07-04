@@ -6,6 +6,7 @@ import Image from "next/image";
 const AddPost = () => {
   // destructuring current user from clerk
   const { userId } = auth();
+  console.log(userId)
 
   // server action for test purpose
   const testAction = async (formData: FormData) => {
