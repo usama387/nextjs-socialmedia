@@ -1,7 +1,7 @@
 import AddPost from "@/components/AddPost";
-import LeftMenu from "@/components/LeftMenu";
-import PostFeed from "@/components/PostFeed";
-import RightMenu from "@/components/RightMenu";
+import PostFeed from "@/components/Feed/PostFeed";
+import LeftMenu from "@/components/LeftMenu/LeftMenu";
+import RightMenu from "@/components/RightMenu/RightMenu";
 import Stories from "@/components/Stories";
 import React from "react";
 
@@ -10,7 +10,7 @@ const HomePage = () => {
     <div className="flex gap-6 pt-6">
       {/* LEFT CONTAINER */}
       <div className="hidden xl:block w-[20%]">
-        <LeftMenu type="home"/>
+        <LeftMenu type="home" />
       </div>
       {/* MIDDLE CONTAINER */}
       <div className="w-full lg:w-[70%] xl:w-[50%]">

@@ -1,9 +1,11 @@
+import prisma from "@/lib/PrismaClient";
+import { auth } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
 // Child of RightMenu component
-const UserInformationCard = ({ user }: { user: User }) => {
+const UserInformationCard = async ({ user }: { user: User }) => {
   // formatting user joining date
   const createdAtDate = new Date(user.createdAt);
 
@@ -13,6 +15,47 @@ const UserInformationCard = ({ user }: { user: User }) => {
     month: "long",
     day: "numeric",
   });
+
+  let isUserBlocked = false;
+  let isFollowing = false;
+  let isFollowingSent = false;
+
+  // getting my current user logged in from clerk
+  const { userId: currentUserId } = auth();
+
+  if (currentUserId) {
+    // if the blockResponse is true it means the logged in user has blocked this user
+    const blockResponse = await prisma.block.findFirst({
+      where: {
+        blockedId: currentUserId,
+        blockerId: user.id,
+      },
+    });
+
+    blockResponse ? (isUserBlocked = true) : (isUserBlocked = false);
+
+    // if the followResponse is true it means the logged in user follows this user
+    const followResponse = await prisma.follower.findFirst({
+      where: {
+        followerId: currentUserId,
+        followingId: user.id,
+      },
+    });
+
+    followResponse ? (isFollowing = true) : (isFollowing = false);
+
+    // if the followRequestResponse is true it means the logged in user has already sent follow request
+    const followRequestResponse = await prisma.followRequest.findFirst({
+      where: {
+        senderId: currentUserId,
+        receiverId: user.id,
+      },
+    });
+
+    followRequestResponse
+      ? (isFollowingSent = true)
+      : (isFollowingSent = false);
+  }
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">

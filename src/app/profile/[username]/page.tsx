@@ -1,6 +1,6 @@
-import LeftMenu from "@/components/LeftMenu";
-import PostFeed from "@/components/PostFeed";
-import RightMenu from "@/components/RightMenu";
+import PostFeed from "@/components/Feed/PostFeed";
+import LeftMenu from "@/components/LeftMenu/LeftMenu";
+import RightMenu from "@/components/RightMenu/RightMenu";
 import prisma from "@/lib/PrismaClient";
 import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
