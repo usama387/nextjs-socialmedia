@@ -58,3 +58,42 @@ export const switchFollow = async (userId: string) => {
     throw new Error("Something went Wrong");
   }
 };
+
+// this server action is being used in userInfoCardInteraction component and userId is being passed as props from there
+export const switchBlock = async (userId: string) => {
+  // getting logged in user from clerk
+  const { userId: currentUserId } = auth();
+
+  if (!currentUserId) {
+    throw new Error("User is not Authenticated");
+  }
+
+  try {
+    const existingBlock = await prisma.block.findFirst({
+      where: {
+        blockerId: currentUserId,
+        blockedId: userId,
+      },
+    });
+
+    // if user is blocked it can be unblocked now
+    if (existingBlock) {
+      await prisma.block.delete({
+        where: {
+          id: existingBlock.id,
+        },
+      });
+    } else {
+      // if we did not block the user we can block it now
+      await prisma.block.create({
+        data: {
+          blockerId: currentUserId,
+          blockedId: userId,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong");
+  }
+};

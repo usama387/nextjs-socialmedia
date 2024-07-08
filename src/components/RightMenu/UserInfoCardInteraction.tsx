@@ -1,6 +1,6 @@
 "use client";
 
-import { switchFollow } from "@/lib/actions";
+import { switchBlock, switchFollow } from "@/lib/actions";
 import { useOptimistic, useState } from "react";
 
 // this is a client because user will be clicking through this and it is a child of userInfoCard component
@@ -24,9 +24,10 @@ const UserInfoCardInteraction = ({
     followingRequestSent: isFollowingSent,
   });
 
+  // function to invoke switchFollow server action
   const follow = async () => {
     // calling this function
-    switchOptimisticFollow("");
+    switchOptimisticState("follow");
     try {
       await switchFollow(userId);
       // spread operator to change only following & followingRequestSent status
@@ -41,34 +42,55 @@ const UserInfoCardInteraction = ({
     }
   };
 
-  // hook to update the UI at once at first we pass in it our main state which is userState from useState hook then we take a callback function and put our previous state as parameter and then spread these values
-  const [optimisticFollow, switchOptimisticFollow] = useOptimistic(
-    userState,
-    (state) => ({
-      ...state,
-      following: state.following && false, // Update following status
-      followingRequestSent:
-        !state.following && !state.followingRequestSent ? true : false, // Update followingRequestSent status
-    })
-  );
+  // function to invoke switchBlock server action and then update main state just as first function
+  const block = async () => {
+    try {
+      switchOptimisticState("block");
 
+      //  invoking my server action
+      await switchBlock(userId);
+
+      setUserState((prev) => ({
+        ...prev,
+        blocked: !prev.blocked,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // hook to update the UI at once at first we pass in it our main state which is userState from useState hook then we take a callback function and put our previous state, value as parameter and then spread these values
+  const [optimisticState, switchOptimisticState] = useOptimistic(
+    userState,
+    (state, value: "follow" | "block") =>
+      value === "follow"
+        ? {
+            ...state,
+            following: state.following && false, // Update following status
+            followingRequestSent:
+              !state.following && !state.followingRequestSent ? true : false, // Update followingRequestSent status
+          }
+        : { ...state, blocked: !state.blocked }
+  );
   return (
     <>
       <form action={follow}>
         <button className="w-full bg-blue-500 text-white text-sm rounded-md p-2">
           {/* now instead of main userState i will use useOptimistic state */}
-          {optimisticFollow.following
+          {optimisticState.following
             ? "Following"
-            : optimisticFollow.followingRequestSent
+            : optimisticState.followingRequestSent
             ? "Requested"
             : "Follow"}
         </button>
       </form>
 
-      <form action="" className="self-end">
-        <span className="text-red-400 font-bold text-xs cursor-pointer">
-          {optimisticFollow.blocked ? "Unblock User" : "Block User"}
-        </span>
+      <form action={block} className="self-end">
+        <button>
+          <span className="text-red-400 font-bold text-xs cursor-pointer">
+            {optimisticState.blocked ? "Unblock User" : "Block User"}
+          </span>
+        </button>
       </form>
     </>
   );
