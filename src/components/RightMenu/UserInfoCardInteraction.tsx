@@ -1,7 +1,7 @@
 "use client";
 
 import { switchFollow } from "@/lib/actions";
-import { useState } from "react";
+import { useOptimistic, useState } from "react";
 
 // this is a client because user will be clicking through this and it is a child of userInfoCard component
 const UserInfoCardInteraction = ({
@@ -25,6 +25,8 @@ const UserInfoCardInteraction = ({
   });
 
   const follow = async () => {
+    // calling this function
+    switchOptimisticFollow("");
     try {
       await switchFollow(userId);
       // spread operator to change only following & followingRequestSent status
@@ -39,13 +41,25 @@ const UserInfoCardInteraction = ({
     }
   };
 
+  // hook to update the UI at once at first we pass in it our main state which is userState from useState hook then we take a callback function and put our previous state as parameter and then spread these values
+  const [optimisticFollow, switchOptimisticFollow] = useOptimistic(
+    userState,
+    (state) => ({
+      ...state,
+      following: state.following && false, // Update following status
+      followingRequestSent:
+        !state.following && !state.followingRequestSent ? true : false, // Update followingRequestSent status
+    })
+  );
+
   return (
     <>
       <form action={follow}>
         <button className="w-full bg-blue-500 text-white text-sm rounded-md p-2">
-          {userState.following
+          {/* now instead of main userState i will use useOptimistic state */}
+          {optimisticFollow.following
             ? "Following"
-            : userState.followingRequestSent
+            : optimisticFollow.followingRequestSent
             ? "Requested"
             : "Follow"}
         </button>
@@ -53,7 +67,7 @@ const UserInfoCardInteraction = ({
 
       <form action="" className="self-end">
         <span className="text-red-400 font-bold text-xs cursor-pointer">
-          {userState.blocked ? "Unblock User" : "Block User"}
+          {optimisticFollow.blocked ? "Unblock User" : "Block User"}
         </span>
       </form>
     </>
