@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import UserInfoCardInteraction from "./UserInfoCardInteraction";
 
 // Child of RightMenu component
 const UserInformationCard = async ({ user }: { user: User }) => {
@@ -124,12 +125,16 @@ const UserInformationCard = async ({ user }: { user: User }) => {
             <span>Joined {formattedDate}</span>
           </div>
         </div>
-        <button className="bg-blue-500 text-white text-sm rounded-md p-2">
-          Follow
-        </button>
-        <span className="text-red-400 self-end text-xs cursor-pointer">
-          Block User
-        </span>
+
+        {/* this is a client component provides interactive options to this server component */}
+        {/* Passing all user data as props to this child component */}
+        <UserInfoCardInteraction
+          userId={user.id}
+          currentUserId={currentUserId}
+          isUserBlocked={isUserBlocked}
+          isFollowing={isFollowing}
+          isFollowingSent={isFollowingSent}
+        />
       </div>
     </div>
   );
