@@ -4,6 +4,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import UserInfoCardInteraction from "./UserInfoCardInteraction";
+import UpdateUser from "./UpdateUser";
 
 // Child of RightMenu component
 const UserInformationCard = async ({ user }: { user: User }) => {
@@ -63,9 +64,14 @@ const UserInformationCard = async ({ user }: { user: User }) => {
       {/* TOP WITH HEADINGS*/}
       <div className="flex justify-between items-center font-medium">
         <span className="text-gray-500">User Information</span>
-        <Link href="/" className="text-blue-500 text-xs">
-          See All
-        </Link>
+        {/* Rendering of two different buttons when user opens its own profile or someone others profile */}
+        {currentUserId === user.id ? (
+          <UpdateUser />
+        ) : (
+          <Link href="/" className="text-blue-500 text-xs">
+            See All
+          </Link>
+        )}
       </div>
       {/* BOTTOM WITH USER DETAILS*/}
       <div className="flex flex-col gap-4 text-gray-500">
@@ -128,13 +134,14 @@ const UserInformationCard = async ({ user }: { user: User }) => {
 
         {/* this is a client component provides interactive options to this server component */}
         {/* Passing all user data as props to this child component */}
-        <UserInfoCardInteraction
-          userId={user.id}
-          currentUserId={currentUserId}
-          isUserBlocked={isUserBlocked}
-          isFollowing={isFollowing}
-          isFollowingSent={isFollowingSent}
-        />
+        {currentUserId && currentUserId !== user.id && (
+          <UserInfoCardInteraction
+            userId={user.id}
+            isUserBlocked={isUserBlocked}
+            isFollowing={isFollowing}
+            isFollowingSent={isFollowingSent}
+          />
+        )}
       </div>
     </div>
   );
