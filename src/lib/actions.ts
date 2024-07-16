@@ -97,3 +97,76 @@ export const switchBlock = async (userId: string) => {
     throw new Error("Something went wrong");
   }
 };
+
+export const acceptFollowRequest = async (userId: string) => {
+  // getting logged in user
+  const { userId: currentUserId } = auth();
+
+  if (!currentUserId) {
+    return new Error("User is not authenticated");
+  }
+
+  try {
+    // checking if logged in user has any follow requests
+    const existingFollowRequest = await prisma.followRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: currentUserId,
+      },
+    });
+
+    // the user can delete the sender request
+    if (existingFollowRequest) {
+      await prisma.followRequest.delete({
+        where: {
+          id: existingFollowRequest.id,
+        },
+      });
+      
+      // user can accept and the sender can follow logged in user
+      await prisma.follower.create({
+        data: {
+          followerId: userId,
+          followingId: currentUserId,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong while accepting request");
+  }
+};
+
+
+export const declineFollowRequest = async (userId: string) => {
+  // getting logged in user
+  const { userId: currentUserId } = auth();
+
+  if (!currentUserId) {
+    return new Error("User is not authenticated");
+  }
+
+  try {
+    // checking if logged in user has any follow requests
+    const existingFollowRequest = await prisma.followRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: currentUserId,
+      },
+    });
+
+    // the user can delete the sender request
+    if (existingFollowRequest) {
+      await prisma.followRequest.delete({
+        where: {
+          id: existingFollowRequest.id,
+        },
+      });
+     
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong while accepting request");
+  }
+};
+
