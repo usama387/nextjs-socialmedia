@@ -66,7 +66,8 @@ const UserInformationCard = async ({ user }: { user: User }) => {
         <span className="text-gray-500">User Information</span>
         {/* Rendering of two different buttons when user opens its own profile or someone others profile */}
         {currentUserId === user.id ? (
-          <UpdateUser />
+          // the user is passed as props
+          <UpdateUser user={user} />
         ) : (
           <Link href="/" className="text-blue-500 text-xs">
             See All
