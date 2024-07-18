@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./PrismaClient";
+import { z } from "zod";
 
 // this server action is being used in userInfoCardInteraction component the userId is passed from there as props
 export const switchFollow = async (userId: string) => {
@@ -122,7 +123,7 @@ export const acceptFollowRequest = async (userId: string) => {
           id: existingFollowRequest.id,
         },
       });
-      
+
       // user can accept and the sender can follow logged in user
       await prisma.follower.create({
         data: {
@@ -136,7 +137,6 @@ export const acceptFollowRequest = async (userId: string) => {
     throw new Error("Something went wrong while accepting request");
   }
 };
-
 
 export const declineFollowRequest = async (userId: string) => {
   // getting logged in user
@@ -162,7 +162,6 @@ export const declineFollowRequest = async (userId: string) => {
           id: existingFollowRequest.id,
         },
       });
-     
     }
   } catch (error) {
     console.log(error);
@@ -170,3 +169,54 @@ export const declineFollowRequest = async (userId: string) => {
   }
 };
 
+// this server action is being used in UpdateUser component to update User
+export const UpdateProfile = async (formData: FormData) => {
+  // accessing my formData inputs at once from this method
+  const fields = Object.fromEntries(formData);
+
+  // if there is any empty fields during update function it will not be updated
+  const filteredFields = Object.fromEntries(
+    Object.entries(fields).filter(([_,value])=> value !== "")
+  )
+
+  // form validation using zod
+  const Profile = z.object({
+    cover: z.string().optional(),
+    name: z.string().max(60).optional(),
+    surname: z.string().max(60).optional(),
+    description: z.string().max(255).optional(),
+    city: z.string().max(60).optional(),
+    school: z.string().max(60).optional(),
+    work: z.string().max(60).optional(),
+    website: z.string().max(60).optional(),
+  });
+
+  // passing my fields in this method to be validated
+  const validatedFields = Profile.safeParse(filteredFields);
+
+  // if fields are not validated
+  if (!validatedFields.success) {
+    console.log(validatedFields.error.flatten().fieldErrors);
+    return "err"
+  }
+
+  // getting logged in user
+  const { userId } = auth();
+
+  if (!userId) {
+    return new Error("User is not authenticated");
+  }
+
+  // once the form is validated it now can be sent to POSTGRES DB
+  try {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: validatedFields.data,
+    });
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong while updating the user");
+  }
+};
