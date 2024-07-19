@@ -3,7 +3,7 @@
 import { UpdateProfile } from "@/lib/actions";
 import { User } from "@prisma/client";
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 
 const UpdateUser = ({ user }: { user: User }) => {
@@ -12,6 +12,12 @@ const UpdateUser = ({ user }: { user: User }) => {
 
   // to store the image
   const [cover, setCover] = useState<any>(false);
+
+  // to show error messages with useAction state hook
+  const [state, formAction] = useActionState(UpdateProfile, {
+    success: false,
+    error: false,
+  });
 
   const handleClose = () => {
     setOpen(!open);
@@ -28,7 +34,9 @@ const UpdateUser = ({ user }: { user: User }) => {
       {open && (
         <div className="absolute w-screen h-screen top-0 left-0 bg-black bg-opacity-65 flex items-center justify-center z-50">
           <form
-            action={(formData)=>UpdateProfile(formData, cover?.secure_url)}
+            action={(formData) =>
+              formAction({ formData, cover: cover?.secure_url || "" })
+            }
             className="p-12 bg-white rounded-lg shadow-md flex flex-col gap-2 w-full md:w-1/2 xl:w-1/3 relative"
           >
             {/* TITLE */}
@@ -157,6 +165,13 @@ const UpdateUser = ({ user }: { user: User }) => {
             <button className="bg-blue-500 p-2 mt-2 rounded-md text-white">
               Update
             </button>
+            {/* Error Messages with useAction hook */}
+            {state.success && (
+              <span className="text-green-500">User Profile Updated!</span>
+            )}
+            {state.error && (
+              <span className="text-red-500">Something went wrong!</span>
+            )}
             <div
               className="absolute text-xl right-2 top-3 font-extrabold cursor-pointer"
               onClick={handleClose}

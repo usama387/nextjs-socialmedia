@@ -170,7 +170,13 @@ export const declineFollowRequest = async (userId: string) => {
 };
 
 // this server action is being used in UpdateUser component to update User
-export const UpdateProfile = async (formData: FormData, cover: string) => {
+export const UpdateProfile = async (
+  prevState: { success: boolean; error: boolean },
+  payload: { formData: FormData; cover: string }
+) => {
+  // taking data and cover picture from payload
+  const { formData, cover } = payload;
+
   // accessing my formData inputs at once from this method
   const fields = Object.fromEntries(formData);
 
@@ -192,19 +198,19 @@ export const UpdateProfile = async (formData: FormData, cover: string) => {
   });
 
   // passing my fields in this method to be validated
-  const validatedFields = Profile.safeParse({ cover,...filteredFields });
+  const validatedFields = Profile.safeParse({ cover, ...filteredFields });
 
   // if fields are not validated
   if (!validatedFields.success) {
     console.log(validatedFields.error.flatten().fieldErrors);
-    return "err";
+    return { success: false, error: true };
   }
 
   // getting logged in user
   const { userId } = auth();
 
   if (!userId) {
-    return new Error("User is not authenticated");
+    return { success: false, error: true };
   }
 
   // once the form is validated it now can be sent to POSTGRES DB
@@ -215,8 +221,9 @@ export const UpdateProfile = async (formData: FormData, cover: string) => {
       },
       data: validatedFields.data,
     });
+    return { success: true, error: false };
   } catch (error) {
     console.log(error);
-    throw new Error("Something went wrong while updating the user");
+    return { success: false, error: true };
   }
 };
