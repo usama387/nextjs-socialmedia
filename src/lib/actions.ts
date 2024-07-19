@@ -170,14 +170,14 @@ export const declineFollowRequest = async (userId: string) => {
 };
 
 // this server action is being used in UpdateUser component to update User
-export const UpdateProfile = async (formData: FormData) => {
+export const UpdateProfile = async (formData: FormData, cover: string) => {
   // accessing my formData inputs at once from this method
   const fields = Object.fromEntries(formData);
 
   // if there is any empty fields during update function it will not be updated
   const filteredFields = Object.fromEntries(
-    Object.entries(fields).filter(([_,value])=> value !== "")
-  )
+    Object.entries(fields).filter(([_, value]) => value !== "")
+  );
 
   // form validation using zod
   const Profile = z.object({
@@ -192,12 +192,12 @@ export const UpdateProfile = async (formData: FormData) => {
   });
 
   // passing my fields in this method to be validated
-  const validatedFields = Profile.safeParse(filteredFields);
+  const validatedFields = Profile.safeParse({ cover,...filteredFields });
 
   // if fields are not validated
   if (!validatedFields.success) {
     console.log(validatedFields.error.flatten().fieldErrors);
-    return "err"
+    return "err";
   }
 
   // getting logged in user
