@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useActionState, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { useRouter } from "next/navigation";
+import UpdateButton from "./UpdateButton";
 
 const UpdateUser = ({ user }: { user: User }) => {
   // managing state for form
@@ -167,9 +168,8 @@ const UpdateUser = ({ user }: { user: User }) => {
                 />
               </div>
             </div>
-            <button className="bg-blue-500 p-2 mt-2 rounded-md text-white">
-              Update
-            </button>
+            {/* it's a client component with useFrom status hook updates the user profile when clicked */}
+           <UpdateButton />
             {/* Error Messages with useAction hook */}
             {state.success && (
               <span className="text-green-500">User Profile Updated!</span>
