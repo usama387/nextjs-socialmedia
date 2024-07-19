@@ -5,6 +5,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import { useActionState, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
+import { useRouter } from "next/navigation";
 
 const UpdateUser = ({ user }: { user: User }) => {
   // managing state for form
@@ -19,8 +20,12 @@ const UpdateUser = ({ user }: { user: User }) => {
     error: false,
   });
 
+  // when the server action completes operation it refreshes page when clicked the handleClose button
+  const router = useRouter();
+
   const handleClose = () => {
     setOpen(!open);
+    state.success && router.refresh();
   };
 
   return (
