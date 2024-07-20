@@ -98,7 +98,8 @@ const SingleProfilePage = async ({
               </div>
             </div>
           </div>
-          <PostFeed />
+          {/* passing username as props from user table when on single profile page */}
+          <PostFeed username={user.username}/>
         </div>
       </div>
       {/* RIGHT CONTAINER WITH RIGHT MENU TO SHOW USER DETAILS BY TAKING USER PROPS*/}

@@ -17,7 +17,8 @@ const HomePage = () => {
         <div className="flex flex-col gap-6">
           <Stories />
           <AddPost />
-          <PostFeed />
+          {/* passing username as props when on profile page only */}
+          <PostFeed/>
         </div>
       </div>
       {/* RIGHT CONTAINER */}
