@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import Comments from "./Comments";
 import { Post as PostType, User } from "@prisma/client";
+import PostInteraction from "./PostInteraction";
 
 // type safety for both Post , User because Post array contains user object and then in likes object userId has been selected ti be rendered finally count with no of comments
 type FeedPostType = PostType & { user: User } & {
@@ -46,54 +47,12 @@ const Post = ({ post }: { post: FeedPostType }) => {
         <p>{post.desc}</p>
       </div>
       {/* INTERACTION OPTIONS */}
-      <div className="flex items-center justify-between text-sm my-4">
-        <div className="flex gap-8">
-          {/* LIKES */}
-          <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl">
-            <Image
-              src="/like.png"
-              alt=""
-              width={16}
-              height={16}
-              className="cursor-pointer"
-            />
-            <span className="text-gray-300">|</span>
-            <span className="text-gray-500">
-              123 <span className="hidden md:inline"> Likes</span>
-            </span>
-          </div>
-          {/* COMMENTS */}
-          <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl">
-            <Image
-              src="/comment.png"
-              alt=""
-              width={16}
-              height={16}
-              className="cursor-pointer"
-            />
-            <span className="text-gray-300">|</span>
-            <span className="text-gray-500">
-              123 <span className="hidden md:inline"> Comments</span>
-            </span>
-          </div>
-        </div>
-        {/* SHARES */}
-        <div>
-          <div className="flex items-center gap-4 bg-slate-100 p-2 rounded-xl">
-            <Image
-              src="/share.png"
-              alt=""
-              width={16}
-              height={16}
-              className="cursor-pointer"
-            />
-            <span className="text-gray-300">|</span>
-            <span className="text-gray-500">
-              <span className="hidden md:inline"> Share</span>
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* this component provides interactive options */}
+      <PostInteraction
+        postId={post.id}
+        likes={post.likes.map((like) => like.userId)}
+        commentNumber={post._count.comments}
+      />
       <Comments />
     </div>
   );

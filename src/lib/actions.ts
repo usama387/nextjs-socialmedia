@@ -227,3 +227,42 @@ export const UpdateProfile = async (
     return { success: false, error: true };
   }
 };
+
+// this server action is being used in PostInteraction component
+export const switchLike = async (postId: number) => {
+  // getting logged in user
+  const { userId } = auth();
+
+  if (!userId) {
+    throw new Error("User is not authenticated!");
+  }
+
+  try {
+    // checking in the like table if the user liked post exists
+    const existingLike = await prisma.like.findFirst({
+      where: {
+        postId,
+        userId,
+      },
+    });
+
+    // if it exists in the like table user can dislike it and in else condition user can like the post using its own id and post id
+    if (existingLike) {
+      await prisma.like.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
+    } else {
+      await prisma.like.create({
+        data: {
+          postId,
+          userId,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong");
+  }
+};
