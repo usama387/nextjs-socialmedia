@@ -56,11 +56,14 @@ const PostFeed = async ({ username }: { username?: string }) => {
     });
 
     const followingIds = following.map((f) => f.followingId);
-    // fetches post using userId from clerk which contains the user followers ids
+
+    const ids = [userId, ...followingIds];
+
+    // fetches post using userId from clerk which contains the user followers ids posts of both own and followers
     posts = await prisma.post.findMany({
       where: {
         userId: {
-          in: followingIds,
+          in: ids,
         },
       },
       // includes following data in latest post order

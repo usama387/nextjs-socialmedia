@@ -3,6 +3,8 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "./PrismaClient";
 import { z } from "zod";
+import { useAuth } from "@clerk/nextjs";
+import { revalidatePath } from "next/cache";
 
 // this server action is being used in userInfoCardInteraction component the userId is passed from there as props
 export const switchFollow = async (userId: string) => {
@@ -294,4 +296,43 @@ export const addComment = async (postId: number, desc: string) => {
     console.log(error);
     throw new Error("Something went wrong!");
   }
+};
+
+// this server action is being used in AddPost component takes two parameters from there
+export const addPost = async (formData: FormData, img: string) => {
+  // accessing the from data
+  const desc = formData.get("desc") as string;
+
+  // validating desc with zod
+  const Desc = z.string().min(1).max(255);
+
+  // pass in the from desc as string
+  const validatedDesc = Desc.safeParse(desc);
+
+  if (!validatedDesc.success) {
+    //TODO
+    console.log("Err")
+    return;
+  }
+
+  // getting the logged in user
+  const { userId } = auth();
+
+  if (!userId) {
+    throw new Error("User is not authenticated");
+  }
+
+  try {
+    await prisma.post.create({
+      data: {
+        desc: validatedDesc.data,
+        userId,
+        img,
+      },
+    });
+
+    revalidatePath("/");
+  } catch (error) {}
+  console.log(Error);
+  throw new Error("Something went wrong!");
 };
