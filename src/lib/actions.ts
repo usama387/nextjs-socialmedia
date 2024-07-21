@@ -266,3 +266,32 @@ export const switchLike = async (postId: number) => {
     throw new Error("Something went wrong");
   }
 };
+
+// this server action is being used in commentList component it takes two parameters to add a comment
+export const addComment = async (postId: number, desc: string) => {
+  // getting userId from clerk to use in the comment
+  const { userId } = auth();
+
+  if (!userId) {
+    throw new Error("User is not authenticated");
+  }
+
+  try {
+    // creating the comment using these parameters returning user info as well
+    const createdComment = await prisma.comment.create({
+      data: {
+        desc,
+        postId,
+        userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return createdComment;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong!");
+  }
+};

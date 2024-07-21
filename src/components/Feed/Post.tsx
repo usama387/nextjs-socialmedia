@@ -53,7 +53,8 @@ const Post = ({ post }: { post: FeedPostType }) => {
         likes={post.likes.map((like) => like.userId)}
         commentNumber={post._count.comments}
       />
-      <Comments />
+      {/* Passing postId as Props to this child component it implements comments functionality */}
+      <Comments postId={post.id} />
     </div>
   );
 };
