@@ -1,10 +1,10 @@
 import { User } from "@prisma/client";
 import Birthdays from "./Birthdays";
-import FriendRequests from "./FriendRequests";
 import UserInformationCard from "./UserInformationCard";
 import UserMediaCard from "./UserMediaCard";
 import { Suspense } from "react";
 import Advertisement from "../Advertisement";
+import FriendRequests from "./FriendRequests";
 
 // If user is passed as props from profile route it displays specific details of that user
 const RightMenu = ({ user }: { user?: User }) => {
