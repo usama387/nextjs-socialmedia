@@ -1,66 +1,49 @@
+import prisma from "@/lib/PrismaClient";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
-import React from "react";
+import StoryList from "./StoryList";
 
 // child component of homepage
-const Stories = () => {
+const Stories = async () => {
+  // getting current user from clerk
+  const { userId: currentUserId } = auth();
+
+  if (!currentUserId) return null;
+
+  // fetching all stories of my own and friends stories
+  const stories = await prisma.story.findMany({
+    where: {
+      expiresAt: {
+        gt: new Date(),
+      },
+      // in this query inside stroy table there is a user table it searches followers of user using its id and show their stories
+      OR: [
+        {
+          user: {
+            followers: {
+              some: {
+                followerId: currentUserId,
+              },
+            },
+          },
+        },
+        // this query returns user's own stories
+        {
+          userId: currentUserId,
+        },
+      ],
+    },
+    // include user details in final response
+    include: {
+      user: true,
+    },
+  });
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md overflow-scroll text-xs scrollbar-hidden">
       <div className="flex gap-8 w-max">
-        {/* STORY */}
-        <div className="flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="https://images.pexels.com/photos/20485643/pexels-photo-20485643/free-photo-of-rings-and-wedding-invitation.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">Ricky</span>
-        </div>
-        {/* STORY */}
-        <div className="flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="https://images.pexels.com/photos/20485643/pexels-photo-20485643/free-photo-of-rings-and-wedding-invitation.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">Ricky</span>
-        </div>
-        {/* STORY */}
-        <div className="flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="https://images.pexels.com/photos/20485643/pexels-photo-20485643/free-photo-of-rings-and-wedding-invitation.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">Ricky</span>
-        </div>
-        {/* STORY */}
-        <div className="flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="https://images.pexels.com/photos/20485643/pexels-photo-20485643/free-photo-of-rings-and-wedding-invitation.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">Ricky</span>
-        </div>
-        {/* STORY */}
-        <div className="flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="https://images.pexels.com/photos/20485643/pexels-photo-20485643/free-photo-of-rings-and-wedding-invitation.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium">Ricky</span>
-        </div>
+        {/* stories are fetched and passed as props to this child to provide interactive options  */}
+        <StoryList stories={stories} userId={currentUserId} />
       </div>
     </div>
   );

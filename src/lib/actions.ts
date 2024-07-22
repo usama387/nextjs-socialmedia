@@ -311,7 +311,7 @@ export const addPost = async (formData: FormData, img: string) => {
 
   if (!validatedDesc.success) {
     //TODO
-    console.log("Err")
+    console.log("Err");
     return;
   }
 
@@ -332,6 +332,51 @@ export const addPost = async (formData: FormData, img: string) => {
     });
 
     revalidatePath("/");
+  } catch (error) {}
+  console.log(Error);
+  throw new Error("Something went wrong!");
+};
+
+// this server action is being used in StoryList component takes only one  parameters from there
+export const addStory = async (img: string) => {
+  // getting the logged in user
+  const { userId } = auth();
+
+  if (!userId) {
+    throw new Error("User is not authenticated");
+  }
+
+  try {
+    // find the story first belongs to the user
+    const existingStory = await prisma.story.findFirst({
+      where: {
+        userId,
+      },
+    });
+
+    // user can delete the story
+    if (existingStory) {
+      await prisma.story.delete({
+        where: {
+          id: existingStory.id,
+        },
+      });
+    }
+
+    //  user can now upload/create story
+    const createdStory = await prisma.story.create({
+      data: {
+        userId,
+        img,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+      // also need user info
+      include: {
+        user: true,
+      },
+    });
+
+    return createdStory;
   } catch (error) {}
   console.log(Error);
   throw new Error("Something went wrong!");
