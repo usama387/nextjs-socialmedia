@@ -381,3 +381,28 @@ export const addStory = async (img: string) => {
   console.log(Error);
   throw new Error("Something went wrong!");
 };
+
+// this server action is being used to delete a post
+export const deletePost = async (postId: number) => {
+  // getting the logged in user
+  const { userId } = auth();
+
+  if (!userId) {
+    throw new Error("User is not authenticated");
+  }
+
+  try {
+    // takes two parameters to delete a post
+    await prisma.post.delete({
+      where: {
+        id: postId,
+        userId,
+      },
+    });
+
+    revalidatePath("/");
+  } catch (error) {
+    console.log(error);
+    throw new Error("Something went wrong!");
+  }
+};
