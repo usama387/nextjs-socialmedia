@@ -4,7 +4,7 @@ import UserInformationCard from "./UserInformationCard";
 import UserMediaCard from "./UserMediaCard";
 import { Suspense } from "react";
 import Advertisement from "../Advertisement";
-import FriendRequests from "./FriendRequests";
+import MyFriendRequests from "./MyFriendRequests";
 
 // If user is passed as props from profile route it displays specific details of that user
 const RightMenu = ({ user }: { user?: User }) => {
@@ -21,7 +21,7 @@ const RightMenu = ({ user }: { user?: User }) => {
           </Suspense>
         </>
       ) : null}
-      <FriendRequests />
+      <MyFriendRequests />
       <Birthdays />
       {/* passing "md" as size prop */}
       <Advertisement size="md" />
